@@ -105,6 +105,56 @@ int clientReq(char * host, char * path, char * port){
 	return 0;
 }
 
+int serverConnect(struct addrinfo *sRes, int *serverfdOut, int *sErr)
+{
+	struct addrinfo *sCur;
+
+	for (sCur = sRes; sCur != NULL; sCur = sCur->ai_next)
+	{
+		*serverfdOut = socket(sCur->ai_family, sCur->ai_socktype, sCur->ai_protocol);
+		if (*serverfdOut < 0)
+		{
+			perror("socket");
+			continue;
+		}
+
+		int val = 1;
+		*sErr = setsockopt(*serverfdOut, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+		if (*sErr == -1)
+		{
+			perror("setsockopt");
+			close(*serverfdOut);
+			continue;
+		}
+
+		*sErr = bind(*serverfdOut, sCur->ai_addr, sCur->ai_addrlen);
+		if (*sErr == -1)
+		{
+			perror("bind");
+			close(*serverfdOut);
+			continue;
+		}
+
+		*sErr = listen(*serverfdOut, BACKLOG);
+		if (*sErr == -1)
+		{
+			perror("listen");
+			close(*serverfdOut);
+			continue;
+		}
+
+		break;
+	}
+	freeaddrinfo(sRes);
+
+	if (sCur == NULL)
+	{
+		fprintf(stderr, "Could not create server\n");
+		exit(EXIT_FAILURE);
+	}
+}
+
+
 int main(int argc, char *argv[])
 {
 	if(!argv[2] || argv[3]){
@@ -120,7 +170,7 @@ int main(int argc, char *argv[])
 	pSig.sa_flags = SA_SIGINFO;
 	sigaction(SIGINT, &pSig, NULL);
 
-	struct addrinfo sHints, *sRes, *sCur;
+	struct addrinfo sHints, *sRes;
 	memset(&sHints, 0, sizeof(sHints));
 	sHints.ai_family = AF_INET6;
 	sHints.ai_socktype = SOCK_STREAM;
@@ -135,50 +185,8 @@ int main(int argc, char *argv[])
 
 	int serverfdOut;
 
-	for (sCur = sRes; sCur != NULL; sCur = sCur->ai_next)
-	{
-		serverfdOut = socket(sCur->ai_family, sCur->ai_socktype, sCur->ai_protocol);
-		if (serverfdOut < 0)
-		{
-			perror("socket");
-			continue;
-		}
+	serverConnect(sRes,&serverfdOut,&sErr);
 
-		int val = 1;
-		sErr = setsockopt(serverfdOut, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
-		if (sErr == -1)
-		{
-			perror("setsockopt");
-			close(serverfdOut);
-			continue;
-		}
-
-		sErr = bind(serverfdOut, sCur->ai_addr, sCur->ai_addrlen);
-		if (sErr == -1)
-		{
-			perror("bind");
-			close(serverfdOut);
-			continue;
-		}
-
-		sErr = listen(serverfdOut, BACKLOG);
-		if (sErr == -1)
-		{
-			perror("listen");
-			close(serverfdOut);
-			continue;
-		}
-
-		break;
-	}
-
-	freeaddrinfo(sRes);
-
-	if (sCur == NULL)
-	{
-		fprintf(stderr, "Could not create server\n");
-		exit(EXIT_FAILURE);
-	}
 
 	while(0)
 	{
