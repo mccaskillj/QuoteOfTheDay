@@ -12,6 +12,13 @@
 const static int BACKLOG = 10;
 int resume;
 
+struct hostData
+{
+	char *host;
+	char *port;
+	char *path;
+};
+
 void handler(int signo)
 {
 	switch (signo) {
@@ -23,19 +30,47 @@ void handler(int signo)
 	}
 }
 
-char* createRequest(char * host, char * path, char * port){
-	char * request = malloc(26+strlen(host)+strlen(path)+strlen(port));
+struct hostData * parseHost(char *host)
+{
+	struct hostData *hostInfo = malloc(sizeof(struct hostData));
+	hostInfo->host = calloc(strlen(host)+1,sizeof(char));
+	hostInfo->port = calloc(strlen(host)+1,sizeof(char));
+	hostInfo->path = calloc(strlen(host)+1,sizeof(char));
+
+	char * front = host;
+	int i;
+	for (i = 0; front[i] != '/' && i < strlen(front); i++);
+		if (front[i] == '/')
+		{
+			strcpy(hostInfo->path,&front[i]);
+			front[i] = '\0';
+		}
+
+	for (i = 0; front[i] != ':' && i < strlen(front); i++);
+		if (front[i] == ':')
+		{
+			strcpy(hostInfo->port,&front[i]);
+			front[i] = '\0';
+		}
+
+	strcpy(hostInfo->host,front);
+
+	return hostInfo;
+}
+
+char* createRequest(struct hostData *hostInfo){
+	char * request = malloc(26+strlen(hostInfo->host)+strlen(hostInfo->path)+strlen(hostInfo->port));
 	
 	strcpy(request,"GET ");
-	strcpy(&request[strlen(request)], path);
+	strcpy(&request[strlen(request)], hostInfo->path);
 	strcpy(&request[strlen(request)], " HTTP/1.1\r\nHost: ");
-	strcpy(&request[strlen(request)], host);
-	strcpy(&request[strlen(request)], port);
+	strcpy(&request[strlen(request)], hostInfo->host);
+	strcpy(&request[strlen(request)], hostInfo->port);
 	strcpy(&request[strlen(request)], "\r\n\r\n");
 	return request;
 }
 
-int clientReq(char * host, char * path, char * port){
+int clientReq(struct hostData *hostInfo){
 	struct addrinfo cHints, *cRes, *cCur;
 	memset(&cHints, 0, sizeof(cHints));
 	cHints.ai_family =	AF_INET6;
@@ -43,7 +78,7 @@ int clientReq(char * host, char * path, char * port){
 	cHints.ai_flags = AI_V4MAPPED;
 
 	/*http://beej.us/guide/bgnet/output/html/multipage/getaddrinfoman.html*/
-	int cErr = getaddrinfo(host, "http", &cHints, &cRes);
+	int cErr = getaddrinfo(hostInfo->host, "http", &cHints, &cRes);
 	if (cErr != 0)
 	{
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(cErr));
@@ -80,20 +115,21 @@ int clientReq(char * host, char * path, char * port){
 		exit(EXIT_FAILURE);
 	}
 
-	char *getReq = createRequest("api.adviceslip.com","/advice","");
+	char *getReq = createRequest(hostInfo);
 
 	char response[3000];
 	int written = send(clientfd, getReq, strlen(getReq), 0);
-	printf("%s\n", getReq);
+
 	if(written == 0)
 	{
 		perror("socket");
 		exit(EXIT_FAILURE);
 	}
-	printf("wrote\n");
+
 	int recieved = recv(clientfd, response,3000-1,0);
-	printf("read\n");
+
 	response[recieved] = '\0';
+
 	printf("%s\n", response);
 
 	if (clientfd > 0){
@@ -151,7 +187,7 @@ int serverConnectInternal(int *serverfdOut, int *sErr, struct addrinfo *sRes)
 		fprintf(stderr, "Could not create server\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	return 0;
 }
 
@@ -186,7 +222,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	resume = 1;
+	struct hostData *hostInfo = parseHost(argv[1]);
 
 	struct sigaction pSig;
 	pSig.sa_handler = handler;
@@ -194,7 +230,7 @@ int main(int argc, char *argv[])
 	pSig.sa_flags = SA_SIGINFO;
 	sigaction(SIGINT, &pSig, NULL);
 
-
+	resume = 1;
 
 	int serverfdOut;
 
@@ -235,7 +271,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	clientReq("api.adviceslip.com","/advice","");
+	clientReq(hostInfo);
 
 	return 0;
 }
