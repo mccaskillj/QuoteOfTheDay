@@ -105,7 +105,7 @@ int clientReq(char * host, char * path, char * port){
 	return 0;
 }
 
-int serverConnect(struct addrinfo *sRes, int *serverfdOut, int *sErr)
+int serverConnectInternal(int *serverfdOut, int *sErr, struct addrinfo *sRes)
 {
 	struct addrinfo *sCur;
 
@@ -145,31 +145,18 @@ int serverConnect(struct addrinfo *sRes, int *serverfdOut, int *sErr)
 
 		break;
 	}
-	freeaddrinfo(sRes);
 
 	if (sCur == NULL)
 	{
 		fprintf(stderr, "Could not create server\n");
 		exit(EXIT_FAILURE);
 	}
+	
+	return 0;
 }
 
-
-int main(int argc, char *argv[])
+int serverConnect(int *serverfdOut)
 {
-	if(!argv[2] || argv[3]){
-		printf("Usage: %s host[:port]/path key\n", basename(argv[0]));
-		exit(EXIT_FAILURE);
-	}
-
-	resume = 1;
-	struct sigaction pSig;
-
-	pSig.sa_handler = handler;
-	sigemptyset(&pSig.sa_mask);
-	pSig.sa_flags = SA_SIGINFO;
-	sigaction(SIGINT, &pSig, NULL);
-
 	struct addrinfo sHints, *sRes;
 	memset(&sHints, 0, sizeof(sHints));
 	sHints.ai_family = AF_INET6;
@@ -183,9 +170,35 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	serverConnectInternal(serverfdOut,&sErr,sRes);
+	
+	freeaddrinfo(sRes);
+
+
+	return 0;
+}
+
+
+int main(int argc, char *argv[])
+{
+	if(!argv[2] || argv[3]){
+		printf("Usage: %s host[:port]/path key\n", basename(argv[0]));
+		exit(EXIT_FAILURE);
+	}
+
+	resume = 1;
+
+	struct sigaction pSig;
+	pSig.sa_handler = handler;
+	sigemptyset(&pSig.sa_mask);
+	pSig.sa_flags = SA_SIGINFO;
+	sigaction(SIGINT, &pSig, NULL);
+
+
+
 	int serverfdOut;
 
-	serverConnect(sRes,&serverfdOut,&sErr);
+	serverConnect(&serverfdOut);
 
 
 	while(0)
