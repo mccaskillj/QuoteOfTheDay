@@ -70,6 +70,33 @@ char* createRequest(struct hostData *hostInfo){
 	return request;
 }
 
+char * readFD(int fd)
+{
+	char temp[1024];
+	char message[1024] = "";
+	char * retVal;
+
+	int recieved;
+
+	while ((recieved = recv(fd, temp, 1023, 0))!=0)
+	{
+		temp[recieved] = '\0';
+		strcat(message,temp);
+	}
+
+	char * i;
+	for (i = message;i[3] != '\0' && (i[0] != '\r' ||
+		i[1] != '\n' || i[2] != '\r' || i[3] != '\n'); i++);
+
+	if (i[3] == '\0') return "";
+
+	retVal = malloc(sizeof(char) * strlen(i));
+	strcpy(retVal, i+4);
+
+	return retVal;
+	
+}
+
 int clientReq(struct hostData *hostInfo){
 	struct addrinfo cHints, *cRes, *cCur;
 	memset(&cHints, 0, sizeof(cHints));
@@ -117,20 +144,17 @@ int clientReq(struct hostData *hostInfo){
 
 	char *getReq = createRequest(hostInfo);
 
-	char response[3000];
 	int written = send(clientfd, getReq, strlen(getReq), 0);
 
 	if(written == 0)
 	{
-		perror("socket");
+		perror("HTTP connection closed by host");
 		exit(EXIT_FAILURE);
 	}
 
-	int recieved = recv(clientfd, response,3000-1,0);
+	char * jsonRet = readFD(clientfd);
 
-	response[recieved] = '\0';
-
-	printf("%s\n", response);
+	printf("%s\n", jsonRet);
 
 	if (clientfd > 0){
 		close(clientfd);
@@ -256,7 +280,7 @@ int main(int argc, char *argv[])
 				exit(EXIT_FAILURE);
 			}
 		}
-		if(&cfd != NULL)
+		if(cfd <= 0)
 		{
 			close(cfd);
 		}
