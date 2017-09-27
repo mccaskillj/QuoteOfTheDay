@@ -4,13 +4,13 @@ CFLAGS=-Wall -std=c89 -D_POSIX_C_SOURCE=201112L
 
 all: qotdd
 
-qotdd: qotdd.o libjsmn.a
+qotdd: qotdd.o jsmn/jsmn.o
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $^
 
 qotdd.o: qotdd.c
 	$(CC) $(CFLAGS) -c -g $<
 
-libjsmn.a:
+jsmn/jsmn.o:
 	make -C jsmn
 
 clean:

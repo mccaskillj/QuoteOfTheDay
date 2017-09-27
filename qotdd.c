@@ -9,6 +9,8 @@
 #include <netinet/in.h>
 #include <libgen.h>
 
+#include "jsmn/jsmn.h"
+
 const static int BACKLOG = 10;
 int resume;
 
@@ -70,7 +72,55 @@ char* createRequest(struct hostData *hostInfo){
 	return request;
 }
 
-char * readFD(int fd)
+int jsoneq(const char *json, jsmntok_t *tok, const char *s)
+{
+	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start &&
+		strncmp(json + tok->start, s, tok->end - tok->start) == 0)
+	{
+		return 0;
+	}
+	return -1;
+}
+
+char * jsonParse(char * json, char * key)
+{
+	/*portions of this code are adapted from the Jsmn library examples*/
+	int i, r;
+	jsmn_parser parser;
+	jsmntok_t tok[128];
+
+	jsmn_init(&parser);
+	r = jsmn_parse(&parser, json, strlen(json), tok, sizeof(tok)/sizeof(tok[0]));
+	if (r<0)
+	{
+		perror("Could not parse Json");
+		return "";
+	}
+
+	if (r < 1 || tok[0].type != JSMN_OBJECT)
+	{
+		perror("Object expected");
+		return "";
+	}
+
+	char * start;
+	for (i = 1; i < r; i++)
+	{
+		if (jsoneq(json,&tok[i],key)==0)
+		{
+			json[tok[i+1].end] = '\0';
+			start = &json[tok[i+1].start];
+		}
+	}
+
+	char * jsonOut = malloc(sizeof(char) * strlen(start)+1);
+	strcpy(jsonOut, start);
+
+	return jsonOut;
+
+}
+
+char * readFD(int fd, char *key)
 {
 	char temp[1024];
 	char message[1024] = "";
@@ -90,14 +140,13 @@ char * readFD(int fd)
 
 	if (i[3] == '\0') return "";
 
-	retVal = malloc(sizeof(char) * strlen(i));
-	strcpy(retVal, i+4);
+	retVal = jsonParse(i+4, key);
 
 	return retVal;
 	
 }
 
-int clientReq(struct hostData *hostInfo){
+int clientReq(struct hostData *hostInfo, char * key){
 	struct addrinfo cHints, *cRes, *cCur;
 	memset(&cHints, 0, sizeof(cHints));
 	cHints.ai_family =	AF_INET6;
@@ -152,7 +201,7 @@ int clientReq(struct hostData *hostInfo){
 		exit(EXIT_FAILURE);
 	}
 
-	char * jsonRet = readFD(clientfd);
+	char * jsonRet = readFD(clientfd, key);
 
 	printf("%s\n", jsonRet);
 
@@ -295,7 +344,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	clientReq(hostInfo);
+	clientReq(hostInfo, argv[2]);
 
 	return 0;
 }
