@@ -110,8 +110,10 @@ char * jsonParse(char * json, char * key)
 		{
 			json[tok[i+1].end] = '\0';
 			start = &json[tok[i+1].start];
-			char * jsonOut = malloc(sizeof(char) * strlen(start)+1);
+			char * jsonOut = malloc(sizeof(char) * strlen(start)+2);
 			strcpy(jsonOut, start);
+			jsonOut[strlen(jsonOut)+1] = '\0';
+			jsonOut[strlen(jsonOut)] = '\n';
 			return jsonOut;
 		}
 	}
@@ -146,7 +148,7 @@ char * readFD(int fd, char *key)
 	
 }
 
-int clientReq(struct hostData *hostInfo, char * key){
+char * clientReq(struct hostData *hostInfo, char * key){
 	struct addrinfo cHints, *cRes, *cCur;
 	memset(&cHints, 0, sizeof(cHints));
 	cHints.ai_family =	AF_INET6;
@@ -203,15 +205,13 @@ int clientReq(struct hostData *hostInfo, char * key){
 
 	char * jsonRet = readFD(clientfd, key);
 
-	printf("%s\n", jsonRet);
-
 	if (clientfd > 0){
 		close(clientfd);
 	}
 
 	free(getReq);
 
-	return 0;
+	return jsonRet;
 }
 
 int serverConnectInternal(int *serverfdOut, int *sErr, struct addrinfo *sRes)
@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
 	serverConnect(&serverfdOut);
 
 
-	while(0)
+	while(resume)
 	{
 		struct sockaddr_storage client_addr;
 		socklen_t client_addr_len = sizeof(client_addr);
@@ -319,9 +319,7 @@ int main(int argc, char *argv[])
 
 		if (resume)
 		{
-			printf("Accept connection...\n");
-
-			char *msg = "Congrats\n";
+			char *msg = clientReq(hostInfo,argv[2]);
 			int written = send(cfd, msg, strlen(msg), 0);
 			if (written != strlen(msg))
 			{
@@ -336,15 +334,13 @@ int main(int argc, char *argv[])
 
 		if (resume) 
 		{
-			printf("Closed connection...\n");
+			close(cfd);
 		} 
 		else 
 		{
 			printf("Exiting program\n");
 		}
 	}
-
-	clientReq(hostInfo, argv[2]);
 
 	return 0;
 }
