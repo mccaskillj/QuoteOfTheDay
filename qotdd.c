@@ -110,13 +110,13 @@ char * jsonParse(char * json, char * key)
 		{
 			json[tok[i+1].end] = '\0';
 			start = &json[tok[i+1].start];
+			char * jsonOut = malloc(sizeof(char) * strlen(start)+1);
+			strcpy(jsonOut, start);
+			return jsonOut;
 		}
 	}
 
-	char * jsonOut = malloc(sizeof(char) * strlen(start)+1);
-	strcpy(jsonOut, start);
-
-	return jsonOut;
+	return "";
 
 }
 
