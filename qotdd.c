@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <signal.h>
@@ -317,8 +318,9 @@ int main(int argc, char *argv[])
 
 		int cfd = accept(serverfdOut, (struct sockaddr *)&client_addr, &client_addr_len);
 
-		if (resume)
+		if (fork() == 0)
 		{
+			resume = 0;
 			char *msg = clientReq(hostInfo,argv[2]);
 			int written = send(cfd, msg, strlen(msg), 0);
 			if (written != strlen(msg))
@@ -327,19 +329,9 @@ int main(int argc, char *argv[])
 				exit(EXIT_FAILURE);
 			}
 		}
-		if(cfd <= 0)
-		{
-			close(cfd);
-		}
-
-		if (resume) 
-		{
-			close(cfd);
-		} 
-		else 
-		{
-			printf("Exiting program\n");
-		}
+		close(cfd);
+		
+		printf("Exiting program\n");
 	}
 
 	return 0;
