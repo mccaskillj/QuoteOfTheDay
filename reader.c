@@ -55,12 +55,6 @@ char *jsonParse(char *json, char *key)
 		return "";
 	}
 
-	/*check to make sure that the json parsed into the appropriate form*/
-	if (r < 1 || tok[0].type != JSMN_OBJECT) {
-		perror("Object expected");
-		return "";
-	}
-
 	/*look for the json key and retrieve the value*/
 	char * start;
 
@@ -97,11 +91,14 @@ char *readFD(int fd, char *key)
 	int recieved;
 
 	/*get data from the socket*/
-	while ((recieved = recv(fd, temp, 9999, 0)) != 0) {
+	while ((recieved = recv(fd, temp, 99999, 0)) != 0) {
 		/*add the new data to the existing data*/
 		temp[recieved] = '\0';
+		printf("%s\n", temp);
 		strcat(message, temp);
 	}
+
+	printf("%s\n", message);
 
 	/*check for a 200 value return*/
 	char *i;

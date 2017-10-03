@@ -87,13 +87,19 @@ char *clientReq(struct hostData *hostInfo, char *key)
 	struct addrinfo cHints, *cRes;
 
 	memset(&cHints, 0, sizeof(cHints));
-	cHints.ai_family =	AF_UNSPEC;
+	cHints.ai_family =	AF_INET;
 	cHints.ai_socktype = SOCK_STREAM;
 	cHints.ai_flags = AI_V4MAPPED;
 
+	int cErr;
+
 	/*make the call to getaddrinfo()*/
 	/*http://beej.us/guide/bgnet/output/html/multipage/getaddrinfoman.html*/
-	int cErr = getaddrinfo(hostInfo->host, "http", &cHints, &cRes);
+	if (hostInfo->port[0] != ':')
+		cErr = getaddrinfo(hostInfo->host, "http", &cHints, &cRes);
+	else
+		cErr = getaddrinfo(hostInfo->host, &hostInfo->port[1],
+				&cHints, &cRes);
 	/*check for errors*/
 	if (cErr != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(cErr));
