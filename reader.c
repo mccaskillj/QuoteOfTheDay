@@ -34,7 +34,7 @@ int jsoneq(const char *json, jsmntok_t *tok, const char *s)
 /*-----------------------------------------------------------------
 * Function: jsonParse()
 * Purpose: parse the json string to remove the desired value. Parts
-*          of the function and adapted from the jsmn library
+*          of the function and adapted from the jsmn library 
 *          examples
 * Parameters: json - the jason string to parse
 *             key - the key to be found in the json string
@@ -48,7 +48,14 @@ char *jsonParse(char *json, char *key)
 	/*set up variables for the tokenizer*/
 	int i, r;
 	jsmn_parser parser;
-	jsmntok_t tok[128];
+
+	r = jsmn_parse(&parser, json, strlen(json),
+			NULL, 0);
+	if (r < 0) {
+		perror("Could not parse Json");
+		return "";
+	}
+	jsmntok_t tok[r];
 
 	/*initialize the parser*/
 	jsmn_init(&parser);
@@ -69,7 +76,7 @@ char *jsonParse(char *json, char *key)
 	}
 
 	/*look for the json key and retrieve the value*/
-	char *start;
+	char * start;
 
 	for (i = 1; i < r; i++) {
 		/*check if the tok struct at pos i contains the key*/
@@ -106,13 +113,13 @@ char *jsonParse(char *json, char *key)
 char *readFD(int fd, char *key)
 {
 	/*set up temporary arrays*/
-	char temp[1024];
-	char message[1024] = "";
+	char temp[10000];
+	char message[10000] = "";
 	char *retVal;
 	int recieved;
 
 	/*get data from the socket*/
-	while ((recieved = recv(fd, temp, 1023, 0)) != 0) {
+	while ((recieved = recv(fd, temp, 9999, 0)) != 0) {
 		/*add the new data to the existing data*/
 		temp[recieved] = '\0';
 		strcat(message, temp);

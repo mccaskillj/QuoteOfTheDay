@@ -95,7 +95,7 @@ int serverConnect(int *serverfdOut)
 	sHints.ai_flags = AI_PASSIVE | AI_V4MAPPED;
 
 	/*run getaddrinfo() to do the DNS lookup*/
-	int sErr = getaddrinfo(NULL, "1025", &sHints, &sRes);
+	int sErr = getaddrinfo(NULL, "1028", &sHints, &sRes);
 
 	if (sErr != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(sErr));

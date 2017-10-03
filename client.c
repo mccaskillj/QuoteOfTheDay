@@ -19,7 +19,7 @@
 char *createRequest(struct hostData *hostInfo)
 {
 	/*get space for the GET request*/
-	char *request = malloc(26+strlen(hostInfo->host)+
+	char *request = malloc(45+strlen(hostInfo->host)+
 		strlen(hostInfo->path)+strlen(hostInfo->port));
 	memoryCheck(request);
 
@@ -29,6 +29,7 @@ char *createRequest(struct hostData *hostInfo)
 	strcpy(&request[strlen(request)], " HTTP/1.1\r\nHost: ");
 	strcpy(&request[strlen(request)], hostInfo->host);
 	strcpy(&request[strlen(request)], hostInfo->port);
+	strcpy(&request[strlen(request)], "\r\nConnection: close");
 	strcpy(&request[strlen(request)], "\r\n\r\n");
 	return request;
 }
@@ -57,7 +58,7 @@ int clientInternal(int *clientfd, int *cErr, struct addrinfo *cRes)
 			perror("socket");
 			continue;
 		}
-
+		
 		/*Create the connection for the HTTP request*/
 		*cErr = connect(*clientfd, cCur->ai_addr, cCur->ai_addrlen);
 		/*check for errors connecting*/
@@ -100,7 +101,7 @@ char *clientReq(struct hostData *hostInfo, char *key)
 	struct addrinfo cHints, *cRes;
 
 	memset(&cHints, 0, sizeof(cHints));
-	cHints.ai_family =	AF_INET6;
+	cHints.ai_family =	AF_UNSPEC;
 	cHints.ai_socktype = SOCK_STREAM;
 	cHints.ai_flags = AI_V4MAPPED;
 
