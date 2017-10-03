@@ -85,20 +85,26 @@ char *jsonParse(char *json, char *key)
 char *readFD(int fd, char *key)
 {
 	/*set up temporary arrays*/
-	char temp[10000];
-	char message[10000] = "";
+	int size = 1000;
+	int buffer = 1;
+	char temp[size];
+	memset(temp, '\0', size);
+	char *message = malloc(sizeof(char));
+	memoryCheck(message);
+	message[0] = '\0';
 	char *retVal;
 	int recieved;
 
 	/*get data from the socket*/
-	while ((recieved = recv(fd, temp, 99999, 0)) != 0) {
+	while ((recieved = recv(fd, temp, size-1, 0)) != 0) {
+		/*resize the buffer to hold the info which is fetched*/
+		buffer = buffer + recieved;
+		message = realloc(message, buffer);
+		memoryCheck(message);
 		/*add the new data to the existing data*/
-		temp[recieved] = '\0';
-		printf("%s\n", temp);
-		strcat(message, temp);
+		strcpy(&message[strlen(message)], temp);
+		memset(temp, '\0', size);
 	}
-
-	printf("%s\n", message);
 
 	/*check for a 200 value return*/
 	char *i;
@@ -123,6 +129,8 @@ char *readFD(int fd, char *key)
 
 	/*parse the json*/
 	retVal = jsonParse(i+4, key);
+
+	free(message);
 
 	return retVal;
 
