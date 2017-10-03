@@ -17,18 +17,11 @@
 #include <fcntl.h>
 
 /*header file includes*/
+#include "jsmn/jsmn.h"
 #include "common.h"
 #include "reader.h"
 #include "client.h"
 
-/*-----------------------------------------------------------------
-* Function: createRequest()
-* Purpose: Creates the properly formatted get request using the
-*          host URL information passed to it
-* Parameters: hostInfo - hostData struct which holds all the
-*                        information for host, port and path
-* Return: request - The properly formatted get request
------------------------------------------------------------------*/
 char *createRequest(struct hostData *hostInfo)
 {
 	/*get space for the GET request*/
@@ -47,16 +40,6 @@ char *createRequest(struct hostData *hostInfo)
 	return request;
 }
 
-/*-----------------------------------------------------------------
-* Function: clientInternal()
-* Purpose: Holds the loop for the client connection which attempts
-*          to connect to the information from getaddrinfo()
-* Parameters: clientfd - the client side file descriptor
-*             cErr - an integer which holds client codes
-*             cRes - the information of the connections gained
-*                    from the call to getaddrinfo()
-* Return: Integer success code
------------------------------------------------------------------*/
 int clientInternal(int *clientfd, int *cErr, struct addrinfo *cRes)
 {
 	/*set up a placeholder struct for use in the for loop*/
@@ -98,16 +81,6 @@ int clientInternal(int *clientfd, int *cErr, struct addrinfo *cRes)
 
 }
 
-/*-----------------------------------------------------------------
-* Function: clientReq()
-* Purpose: Set up the HTTP connection, pass the GET request and
-*          read from the socket
-* Parameters: hostInfo - hostData struct which holds the
-*                        information for making the HTTP connection
-*             Key - The word which is being searched for in the
-*                   Json returned from the HTTP request
-* Return: The Json returned from the GET request
------------------------------------------------------------------*/
 char *clientReq(struct hostData *hostInfo, char *key)
 {
 	/*set up for call to getaddrinfo()*/
@@ -157,14 +130,6 @@ char *clientReq(struct hostData *hostInfo, char *key)
 	return jsonRet;
 }
 
-/*-----------------------------------------------------------------
-* Function: testClientConnection()
-* Purpose: tests the information passed to determine if the URL
-*          entered on the command line is valid
-* Parameters: hostInfo - hostData struct which holds the
-*                        information for making the HTTP connection
-* Return: void
------------------------------------------------------------------*/
 void testClientConnection(struct hostData *hostInfo)
 {
 	/*set up for call to getaddrinfo()*/

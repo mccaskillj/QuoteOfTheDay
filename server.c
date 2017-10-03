@@ -19,17 +19,6 @@
 /*File includes*/
 #include "server.h"
 
-/*-----------------------------------------------------------------
-* Function: serverConnectInternal()
-* Purpose: The internal connection loop for attmepting connections
-*          on the info made by getaddrinfo()
-* Parameters: serverfdOut - the servers outgoing connection file
-*                           descriptor
-*             sErr - integer for holding error codes
-*             sRes - addrinfo struct for holding the information
-*                    passed by getaddrinfo()
-* Return: integer success code
------------------------------------------------------------------*/
 int serverConnectInternal(int *serverfdOut, int *sErr, struct addrinfo *sRes)
 {
 	/*Create a temporary placeholder for use in the for loop*/
@@ -89,12 +78,6 @@ int serverConnectInternal(int *serverfdOut, int *sErr, struct addrinfo *sRes)
 	return 0;
 }
 
-/*-----------------------------------------------------------------
-* Function: serverConnect()
-* Purpose: Set up the server side connection
-* Parameters: serverfdOut - the servers outgoing file descriptor
-* Return: Integer success code
------------------------------------------------------------------*/
 int serverConnect(int *serverfdOut)
 {
 	/*set up variables for use in getaddrinfo()*/

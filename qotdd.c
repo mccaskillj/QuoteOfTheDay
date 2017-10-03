@@ -25,12 +25,6 @@
 #include "server.h"
 #include "qotdd.h"
 
-/*-----------------------------------------------------------------
-* Function: handler()
-* Purpose: Signal handler for handling SIGINT
-* Parameters: signo - integer value of the signal
-* Return: void
------------------------------------------------------------------*/
 void handler(int signo)
 {
 	/*switch statement to determine signal*/
@@ -45,13 +39,6 @@ void handler(int signo)
 	}
 }
 
-/*-----------------------------------------------------------------
-* Function: parseHost()
-* Purpose: Parse the host URL which is passed through the command
-*          line into its host, port and path values
-* Parameters: host - string of the full path passed from argv[1]
-* Return: hostData struct with the values seperated
------------------------------------------------------------------*/
 struct hostData *parseHost(char *host)
 {
 	/*allocate space for the hostdata struct and its internal pieces*/
@@ -101,14 +88,6 @@ struct hostData *parseHost(char *host)
 	return hostInfo;
 }
 
-/*-----------------------------------------------------------------
-* Function: main()
-* Purpose: main program function which starts the initial set-up of
-*          the server and handles the outgoing connections and fork
-* Parameters: argc - number of arguments
-*             argv - array of the arguments
-* Return: return value of int for success or failure
------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
 	/*check for correct number of arguments*/
