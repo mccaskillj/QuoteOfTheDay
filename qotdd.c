@@ -6,6 +6,23 @@
 * This file holds the main program function and sets up the main connection
 * loops and forks the server
 -----------------------------------------------------------------------------*/
+/*System includes*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <signal.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <libgen.h>
+
+/*header file includes*/
+#include "common.h"
+#include "client.h"
+#include "server.h"
 #include "qotdd.h"
 
 /*-----------------------------------------------------------------

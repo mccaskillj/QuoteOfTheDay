@@ -9,11 +9,6 @@
 * Header file for common.h holding includes, structs and prototypes
 -----------------------------------------------------------------------------*/
 
-/*System includes*/
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 /*-----------------------------------------------------------------
 * Struct which is used to hold the host, path and port associated
 * with the HTTP connection

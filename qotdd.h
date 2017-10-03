@@ -9,23 +9,6 @@
 * Header file for qotdd.h holding includes and prototypes
 -----------------------------------------------------------------------------*/
 
-/*System includes*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <signal.h>
-#include <string.h>
-#include <netinet/in.h>
-#include <libgen.h>
-
-/*header file includes*/
-#include "server.h"
-#include "client.h"
-
 /*static globals needed for signal handling*/
 static int resume;
 static int sigInt;

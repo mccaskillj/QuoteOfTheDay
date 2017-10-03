@@ -9,15 +9,6 @@
 * Header file for reader.h holding includes and prototypes
 -----------------------------------------------------------------------------*/
 
-/*System includes*/
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-
 /*static value for setting the connection backlog*/
 const static int BACKLOG = 10;
 

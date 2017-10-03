@@ -5,6 +5,13 @@
 *
 * This file holds a couple functions which are used by multiple C files
 -----------------------------------------------------------------------------*/
+
+/*System includes*/
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+/*file includes*/
 #include "common.h"
 
 /*-----------------------------------------------------------------

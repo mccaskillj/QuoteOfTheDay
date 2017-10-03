@@ -9,17 +9,6 @@
 * Header file for reader.h holding includes and prototypes
 -----------------------------------------------------------------------------*/
 
-/*System includes*/
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-/*header file includes*/
-#include "common.h"
-#include "jsmn/jsmn.h"
-
 /*-----------------------------------------------------------------
 * Function: jsoneq()
 * Purpose: This function is taken from the jsmn usage examples for

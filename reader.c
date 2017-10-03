@@ -6,6 +6,16 @@
 * File containing all of the functions related with reading from the HTTP
 * connection
 -----------------------------------------------------------------------------*/
+/*System includes*/
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+/*header file includes*/
+#include "common.h"
+#include "jsmn/jsmn.h"
 #include "reader.h"
 
 /*-----------------------------------------------------------------

@@ -6,6 +6,19 @@
 * This file is the code file for the creation of the client HTTP connections
 * which are established when a connection to the server is made
 -----------------------------------------------------------------------------*/
+/*System includes*/
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+
+/*header file includes*/
+#include "common.h"
+#include "reader.h"
 #include "client.h"
 
 /*-----------------------------------------------------------------

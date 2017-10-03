@@ -6,6 +6,17 @@
 * This file contains the functions necessary for running the server side of
 * the qotdd
 -----------------------------------------------------------------------------*/
+
+/*System includes*/
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*File includes*/
 #include "server.h"
 
 /*-----------------------------------------------------------------

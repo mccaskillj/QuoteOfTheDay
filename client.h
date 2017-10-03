@@ -9,20 +9,6 @@
 * Header file for client.h holding includes and prototypes
 -----------------------------------------------------------------------------*/
 
-/*System includes*/
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <fcntl.h>
-
-/*header file includes*/
-#include "common.h"
-#include "reader.h"
-
 /*-----------------------------------------------------------------
 * Function: createRequest()
 * Purpose: Creates the properly formatted get request using the
