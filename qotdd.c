@@ -18,6 +18,7 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <libgen.h>
+#include <errno.h>
 
 /*header file includes*/
 #include "common.h"
@@ -33,6 +34,9 @@ void handler(int signo)
 		/*set the globals*/
 		resume = 0;
 		sigInt = 1;
+		break;
+	case SIGCHLD:
+		while (waitpid(-1, NULL, WNOHANG) > 0);
 		break;
 	default: /*Should never get this case*/
 		break;
@@ -103,6 +107,7 @@ int main(int argc, char *argv[])
 	sigemptyset(&pSig.sa_mask);
 	pSig.sa_flags = SA_SIGINFO;
 	sigaction(SIGINT, &pSig, NULL);
+	sigaction(SIGCHLD, &pSig, NULL);
 
 	/*set up struct to hold host data*/
 	struct hostData *hostInfo = parseHost(argv[1]);
@@ -126,15 +131,17 @@ int main(int argc, char *argv[])
 		struct sockaddr_storage client_addr;
 		socklen_t client_addr_len = sizeof(client_addr);
 
-		/*clean up children*/
-		while (waitpid(-1, NULL, WNOHANG) > 0);
-
 		/*wait for connections*/
 		int cfd = accept(serverfdOut, (struct sockaddr *)&client_addr,
 				&client_addr_len);
 
+		if (cfd < 0 && errno != EINTR) {
+			perror("accept");
+			exit(EXIT_FAILURE);
+		}
+
 		/*fork the server*/
-		if (fork() == 0) {
+		if (cfd >= 0 && fork() == 0) {
 			/*set the resume to 0 so children terminate*/
 			resume = 0;
 			/*set up the connection and get the return from HTTP*/
