@@ -35,6 +35,8 @@ char *jsonParse(char *json, char *key)
 	int i, r;
 	jsmn_parser parser;
 
+	jsmn_init(&parser);
+
 	r = jsmn_parse(&parser, json, strlen(json),
 			NULL, 0);
 	if (r < 0) {

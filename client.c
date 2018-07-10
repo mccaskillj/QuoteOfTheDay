@@ -155,4 +155,5 @@ void testClientConnection(struct hostData *hostInfo)
 		freeHostData(hostInfo);
 		exit(EXIT_FAILURE);
 	}
+	freeaddrinfo(cRes);
 }
